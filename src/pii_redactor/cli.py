@@ -9,7 +9,7 @@ from pathlib import Path
 import click
 
 from .detectors import detect_all
-from .redactor import Redactor
+from .redactor import STRATEGIES, Redactor
 
 
 @click.group()
@@ -25,7 +25,10 @@ def main() -> None:
 @click.option("--audit", "audit_path", type=click.Path(), default=None,
               help="Write the JSON audit log to this file.")
 @click.option("--format", "out_format", type=click.Choice(["text", "json"]), default="text")
-def scan(input_path: str, do_redact: bool, audit_path: str | None, out_format: str) -> None:
+@click.option("--strategy", type=click.Choice(list(STRATEGIES)), default="placeholder",
+              help="Redaction strategy: placeholder, mask, hash, or tokenize.")
+def scan(input_path: str, do_redact: bool, audit_path: str | None, out_format: str,
+         strategy: str) -> None:
     """Scan a file for PII; optionally redact and write an audit log."""
     text = Path(input_path).read_text(encoding="utf-8")
     detections = detect_all(text)
@@ -33,7 +36,7 @@ def scan(input_path: str, do_redact: bool, audit_path: str | None, out_format: s
     redacted: str | None = None
     log = None
     if do_redact or audit_path:
-        redacted, log = Redactor().redact(text)
+        redacted, log = Redactor(strategy=strategy).redact(text)
 
     if audit_path and log is not None:
         Path(audit_path).write_text(json.dumps(log.to_dict(), indent=2), encoding="utf-8")
