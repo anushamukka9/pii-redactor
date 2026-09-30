@@ -1,7 +1,7 @@
 [project]
 name = "pii-redactor"
 version = "0.1.0"
-description = "PII detection and redaction for AI pipelines — regex + heuristic detectors with span-level audit"
+description = "PII detection and redaction for AI pipelines: regex plus heuristic detectors with span-level audit"
 readme = "README.md"
 requires-python = ">=3.9"
 license = { text = "MIT" }
